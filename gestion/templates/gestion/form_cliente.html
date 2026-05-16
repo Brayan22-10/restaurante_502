@@ -3,12 +3,22 @@
     <div class="auth-container" style="max-width: 600px; border-left: 6px solid #800000;">
         <h2>{{ titulo }}</h2>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-        <form method="post" style="text-align: left;">
-            {% csrf_token %} {% for field in form %}
+
+        <form method="post" style="text-align: left;" novalidate>
+            {% csrf_token %} {% if form.non_field_errors %}
+            <div style="color: #c0392b; margin-bottom: 15px; font-weight: bold;">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %} {% for field in form %}
             <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">{{ field.label }}:</label> {{ field }}
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">{{ field.label }}:</label> {{ field }} {% if field.errors %}
+                <div style="color: #c0392b; font-size: 0.85rem; margin-top: 5px; font-weight: 500;">
+                    {% for error in field.errors %} {{ error }} {% endfor %}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
+
             <div style="margin-top: 30px; display: flex; gap: 10px;">
                 <button type="submit" class="btn-auth" style="margin: 0; flex: 2;">GUARDAR</button>
                 <a href="{% url 'lista_clientes' %}" class="btn-auth" style="background: #ccc; text-decoration: none; text-align: center; margin: 0; flex: 1; display: flex; align-items: center; justify-content: center;">CANCELAR</a>

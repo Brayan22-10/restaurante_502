@@ -1,27 +1,18 @@
 {% extends 'gestion/base.html' %} {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2>Gestión de Facturas</h2>
-    <a href="{% url 'crear_factura' %}" class="btn-auth" style="text-decoration: none; padding: 10px 20px; width: auto; margin: 0;">
-        NUEVA FACTURA
-    </a>
 </div>
-
-{% if messages %} {% for message in messages %}
-<div style="padding: 10px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border-radius: 5px; border: 1px solid #c3e6cb;">
-    {{ message }}
-</div>
-{% endfor %} {% endif %}
 
 <table>
     <thead>
         <tr>
             <th>ID</th>
-            <th>Orden</th>
-            <th>Fecha</th>
+            <th>Orden Relacionada</th>
+            <th>Fecha de Emisión</th>
             <th>Subtotal</th>
-            <th>Impuesto</th>
-            <th>Total</th>
-            <th>Método de pago</th>
+            <th>Impuesto (8%)</th>
+            <th>Total Pagado</th>
+            <th>Método de Pago</th>
             <th style="text-align: center;">Acciones</th>
         </tr>
     </thead>
@@ -29,12 +20,16 @@
         {% for factura in facturas %}
         <tr>
             <td><strong>#{{ factura.id }}</strong></td>
-            <td>Orden {{ factura.orden.id }}</td>
+            <td>Orden #{{ factura.orden.id }}</td>
             <td>{{ factura.fecha_factura|date:"d/m/Y" }}</td>
             <td>${{ factura.subtotal }}</td>
             <td>${{ factura.impuesto }}</td>
             <td style="font-weight: bold; color: var(--principal);">${{ factura.total_factura }}</td>
-            <td>{{ factura.metodo_pago }}</td>
+            <td>
+                <span style="background: #f4f6f7; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; border: 1px solid #ddd;">
+                    {{ factura.metodo_pago }}
+                </span>
+            </td>
             <td style="text-align: center;">
                 <a href="{% url 'editar_factura' factura.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">Editar</a>
                 <a href="{% url 'eliminar_factura' factura.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">Eliminar</a>

@@ -1,0 +1,50 @@
+{% extends 'gestion/base.html' %} {% block content %}
+<div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
+    <div style="width: 100%; max-width: 500px; background: #fff; padding: 25px; border-radius: 8px; border-top: 6px solid #2ecc71; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+
+        <h2 style="margin-top: 0; color: #2c3e50; text-align: center;">Cierre de Cuenta</h2>
+        <p style="color: #7f8c8d; text-align: center; font-size: 0.9rem; margin-bottom: 20px;">
+            Orden de Servicio #{{ orden.id }}
+        </p>
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 20px;">
+
+        <div style="background: #fffdf9; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f39c12; font-size: 0.95rem;">
+            <p style="margin: 4px 0;"><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
+            <p style="margin: 4px 0;"><strong>Atendido por:</strong> {{ orden.empleado.nombre }}</p>
+            <p style="margin: 4px 0;"><strong>Ubicación:</strong> Mesa {{ orden.mesa.numero_mesa }}</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+
+            <p style="margin: 4px 0; display: flex; justify-content: space-between;">
+                <span>Subtotal Neto:</span> <span>${{ orden.subtotal }}</span>
+            </p>
+            <p style="margin: 4px 0; display: flex; justify-content: space-between; color: #7f8c8d;">
+                <span>Impuesto Ley (8%):</span> <span>${{ orden.impuesto }}</span>
+            </p>
+            <h3 style="margin: 12px 0 0 0; display: flex; justify-content: space-between; color: #2ecc71; font-size: 1.35rem;">
+                <span>Total a Cobrar:</span> <span>${{ orden.total }}</span>
+            </h3>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %} {% for field in form %}
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 1rem; color: #34495e;">
+                    Seleccione el Método de Pago:
+                </label> {{ field }} {% if field.errors %}
+                <small style="color: #e74c3c; display: block; margin-top: 5px;">{{ field.errors.0 }}</small> {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button type="submit" class="btn-auth" style="margin: 0; flex: 2; background: #2ecc71;">
+                    PROCESAR PAGO
+                </button>
+                <a href="{% url 'lista_ordenes' %}" class="btn-auth" style="background: #95a5a6; text-decoration: none; text-align: center; margin: 0; flex: 1; display: flex; align-items: center; justify-content: center; color: white;">
+                    CANCELAR
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

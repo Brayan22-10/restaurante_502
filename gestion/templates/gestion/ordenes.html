@@ -6,12 +6,6 @@
     </a>
 </div>
 
-{% if messages %} {% for message in messages %}
-<div style="padding: 10px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border-radius: 5px; border: 1px solid #c3e6cb;">
-    {{ message }}
-</div>
-{% endfor %} {% endif %}
-
 <table>
     <thead>
         <tr>
@@ -19,6 +13,7 @@
             <th>Cliente</th>
             <th>Mesero</th>
             <th>Mesa</th>
+            <th>Comanda (Platos)</th>
             <th>Fecha</th>
             <th>Estado</th>
             <th>Total</th>
@@ -29,25 +24,47 @@
         {% for orden in ordenes %}
         <tr>
             <td><strong>#{{ orden.id }}</strong></td>
-            <td>{{ orden.id_cliente.nombre_cliente }}</td>
-            <td>{{ orden.id_empleado.nombre_empleado }}</td>
-            <td>Mesa {{ orden.id_mesa.numero_mesa }}</td>
-            <td>{{ orden.fecha_orden|date:"d/m/Y H:i" }}</td>
+            <td>{{ orden.cliente.nombre }}</td>
+            <td>{{ orden.empleado.nombre }}</td>
+            <td>Mesa {{ orden.mesa.numero_mesa }}</td>
+
             <td>
-                {% if orden.estado_orden == 'Completada' %}
-                <span class="badge badge-disponible">Pagada</span> {% elif orden.estado_orden == 'Pendiente' %}
-                <span class="badge badge-reserva">En Proceso</span> {% else %}
-                <span class="badge badge-ocupada">{{ orden.estado_orden }}</span> {% endif %}
+                <ul style="margin: 0; padding-left: 15px; font-size: 0.9rem; text-align: left;">
+                    {% for detalle in orden.detalles.all %}
+                    <li>
+                        <strong>{{ detalle.cantidad }}x</strong> {{ detalle.plato.nombre_plato }} {% if not detalle.servido %}
+                        <span style="color: #e67e22; font-size: 0.75rem; font-style: italic;">(En preparación)</span> {% else %}
+                        <span style="color: #2ecc71; font-size: 0.75rem; font-style: italic;">(Entregado)</span> {% endif %}
+                    </li>
+                    {% empty %}
+                    <li style="color: #999; list-style: none; margin-left: -15px;">Sin platos añadidos</li>
+                    {% endfor %}
+                </ul>
             </td>
+
+            <td>{{ orden.fecha_hora|date:"d/m/Y H:i" }}</td>
+
+            <td>
+                {% if orden.estado_orden == 'Facturada' %}
+                <span class="badge" style="background-color: #2ecc71; color: white; padding: 3px 8px; border-radius: 3px;">Facturada</span> {% else %}
+                <span class="badge" style="background-color: #f1c40f; color: black; padding: 3px 8px; border-radius: 3px;">Activa</span> {% endif %}
+            </td>
+
             <td><strong style="color: #27ae60;">${{ orden.total }}</strong></td>
+
             <td style="text-align: center;">
-                <a href="{% url 'editar_orden' orden.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">✏️ Editar</a>
-                <a href="{% url 'eliminar_orden' orden.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">🗑️ Eliminar</a>
+                {% if orden.estado_orden == 'Facturada' %}
+                <span style="color: #7f8c8d; font-style: italic; font-size: 0.9rem;">Orden Cerrada</span> {% else %}
+
+                <a href="{% url 'agregar_platos_orden' orden.id %}" style="color: #3498db; text-decoration: none; font-weight: bold; margin-right: 15px;">+ Platos</a> {% if orden.boton_eliminar %}
+                <a href="{% url 'eliminar_orden' orden.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold; margin-right: 15px;">Eliminar Orden</a> {% endif %} {% if orden.boton_entregar %}
+                <a href="{% url 'entregar_orden' orden.id %}" style="color: #e67e22; text-decoration: none; font-weight: bold; margin-right: 15px;">Entregar</a> {% endif %} {% if orden.boton_facturar %}
+                <a href="{% url 'crear_factura' orden.id %}" style="color: #2ecc71; text-decoration: none; font-weight: bold;">Facturar</a> {% endif %} {% endif %}
             </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="8" style="text-align: center; padding: 20px; color: #666;">No hay órdenes registradas.</td>
+            <td colspan="9" style="text-align: center; padding: 20px; color: #666;">No hay órdenes registradas.</td>
         </tr>
         {% endfor %}
     </tbody>

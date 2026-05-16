@@ -6,12 +6,6 @@
     </a>
 </div>
 
-{% if messages %} {% for message in messages %}
-<div style="padding: 10px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border-radius: 5px; border: 1px solid #c3e6cb;">
-    {{ message }}
-</div>
-{% endfor %} {% endif %}
-
 <table>
     <thead>
         <tr>
@@ -38,8 +32,8 @@
                 <span class="badge badge-ocupada">Agotado</span> {% endif %}
             </td>
             <td style="text-align: center;">
-                <a href="{% url 'editar_plato' plato.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">✏️ Editar</a>
-                <a href="{% url 'eliminar_plato' plato.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">🗑️ Eliminar</a>
+                <a href="{% url 'editar_plato' plato.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">Editar</a>
+                <a href="{% url 'eliminar_plato' plato.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">Eliminar</a>
             </td>
         </tr>
         {% empty %}

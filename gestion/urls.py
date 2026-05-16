@@ -28,9 +28,13 @@ urlpatterns = [
     path('ordenes/crear/', views.crear_orden, name='crear_orden'),
     path('ordenes/editar/<int:id>/', views.editar_orden, name='editar_orden'),
     path('ordenes/eliminar/<int:id>/', views.eliminar_orden, name='eliminar_orden'),
+    path('ordenes/<int:orden_id>/platos/', views.agregar_platos_orden, name='agregar_platos_orden'),
+    path('ordenes/plato/eliminar/<int:detalle_id>/', views.eliminar_plato_orden, name='eliminar_plato_orden'),
+    path('ordenes/<int:orden_id>/confirmar/', views.confirmar_orden, name='confirmar_orden'),
+    path('ordenes/<int:orden_id>/entregar/', views.entregar_orden, name='entregar_orden'),
 
     path('facturas/', views.lista_facturas, name='lista_facturas'),
-    path('facturas/crear/', views.crear_factura, name='crear_factura'),
+    path('ordenes/<int:orden_id>/facturar/', views.crear_factura, name='crear_factura'), 
     path('facturas/editar/<int:id>/', views.editar_factura, name='editar_factura'),
     path('facturas/eliminar/<int:id>/', views.eliminar_factura, name='eliminar_factura'),
 ]

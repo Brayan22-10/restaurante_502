@@ -100,7 +100,10 @@
             };
 
         } else if (seccion === 'Facturas') {
-            btnCreate.onclick = () => window.location.href = "{% url 'crear_factura' %}";
+            btnCreate.onclick = function() {
+                alert("Para generar una nueva factura de pago, debes hacerlo desde una orden activa dentro del menú de Órdenes.");
+                window.location.href = "{% url 'lista_ordenes' %}";
+            };
             btnRead.onclick = () => window.location.href = "{% url 'lista_facturas' %}";
             btnUpdate.onclick = btnDelete.onclick = function() {
                 alert("Para editar o eliminar, selecciona una factura en 'Ver Lista'");
@@ -128,5 +131,4 @@
         }
     }
 </script>
-
 {% endblock %}
