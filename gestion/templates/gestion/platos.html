@@ -1,9 +1,11 @@
 {% extends 'gestion/base.html' %} {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2>Menú de Platos</h2>
+
+    {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
     <a href="{% url 'crear_plato' %}" class="btn-auth" style="text-decoration: none; padding: 10px 20px; width: auto; margin: 0;">
         AGREGAR PLATO
-    </a>
+    </a> {% endif %}
 </div>
 
 <table>
@@ -15,7 +17,10 @@
             <th>Precio</th>
             <th>Categoría</th>
             <th>Estado</th>
+
+            {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
             <th style="text-align: center;">Acciones</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -31,10 +36,13 @@
                 <span class="badge badge-disponible">Disponible</span> {% else %}
                 <span class="badge badge-ocupada">Agotado</span> {% endif %}
             </td>
+
+            {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
             <td style="text-align: center;">
                 <a href="{% url 'editar_plato' plato.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">Editar</a>
-                <a href="{% url 'eliminar_plato' plato.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">Eliminar</a>
+                <a href="{% url 'eliminar_plato' plato.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;" onclick="return confirm('¿Seguro que deseas eliminar este plato?');">Eliminar</a>
             </td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr>

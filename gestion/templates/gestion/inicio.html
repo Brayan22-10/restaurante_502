@@ -1,34 +1,40 @@
 {% extends 'gestion/base.html' %} {% block content %}
 <h2>Panel principal</h2>
 
-<div class="card" onclick="openCrud('Clientes')">
-    <h3>Clientes</h3>
-    <p>{{ total_clientes }}</p>
-</div>
+<div class="grid-container">
 
-<div class="card" onclick="openCrud('Empleados')">
-    <h3>Empleados</h3>
-    <p>{{ total_empleados }}</p>
-</div>
+    {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' %}
+    <div class="card" onclick="openCrud('Clientes')">
+        <h3>Clientes</h3>
+        <p>{{ total_clientes }}</p>
+    </div>
+    {% endif %} {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' %}
+    <div class="card" onclick="openCrud('Empleados')">
+        <h3>Empleados</h3>
+        <p>{{ total_empleados }}</p>
+    </div>
+    {% endif %} {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' or user.empleado.cargo == 'Mesero' or user.empleado.cargo == 'Mesera' %}
+    <div class="card" onclick="openCrud('Mesas')">
+        <h3>Mesas</h3>
+        <p>{{ total_mesas }}</p>
+    </div>
+    {% endif %} {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' or user.empleado.cargo == 'Mesero' or user.empleado.cargo == 'Mesera' %}
+    <div class="card" onclick="openCrud('Platos')">
+        <h3>Platos</h3>
+        <p>{{ total_platos }}</p>
+    </div>
+    {% endif %} {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' or user.empleado.cargo == 'Mesero' or user.empleado.cargo == 'Mesera' %}
+    <div class="card" onclick="openCrud('Órdenes')">
+        <h3>Órdenes</h3>
+        <p>{{ total_ordenes }}</p>
+    </div>
+    {% endif %} {% if user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' or user.empleado.cargo == 'Cajero' or user.empleado.cargo == 'Cajera' %}
+    <div class="card" onclick="openCrud('Facturas')">
+        <h3>Facturas</h3>
+        <p>{{ total_facturas }}</p>
+    </div>
+    {% endif %}
 
-<div class="card" onclick="openCrud('Mesas')">
-    <h3>Mesas</h3>
-    <p>{{ total_mesas }}</p>
-</div>
-
-<div class="card" onclick="openCrud('Platos')">
-    <h3>Platos</h3>
-    <p>{{ total_platos }}</p>
-</div>
-
-<div class="card" onclick="openCrud('Órdenes')">
-    <h3>Órdenes</h3>
-    <p>{{ total_ordenes }}</p>
-</div>
-
-<div class="card" onclick="openCrud('Facturas')">
-    <h3>Facturas</h3>
-    <p>{{ total_facturas }}</p>
 </div>
 
 <div id="modalCrud" class="modal-crud">
@@ -47,6 +53,8 @@
 </div>
 
 <script>
+    const userRole = "{% if user.empleado.cargo %}{{ user.empleado.cargo }}{% else %}{{ user.groups.all.0.name }}{% endif %}";
+
     function openCrud(seccion) {
         document.getElementById('modalTitle').innerText = 'Gestión de ' + seccion;
         const modal = document.getElementById('modalCrud');
@@ -56,8 +64,22 @@
         const btnUpdate = document.getElementById('btnUpdate');
         const btnDelete = document.getElementById('btnDelete');
 
+        btnCreate.style.display = "block";
+        btnRead.style.display = "block";
+        btnUpdate.style.display = "block";
+        btnDelete.style.display = "block";
         btnUpdate.style.opacity = "1";
         btnDelete.style.opacity = "1";
+
+        if (userRole === 'Mesero' || userRole === 'Mesera') {
+            if (seccion === 'Mesas' || seccion === 'Platos' || seccion === 'Clientes') {
+                btnCreate.style.display = "none";
+                btnUpdate.style.display = "none";
+                btnDelete.style.display = "none";
+            } else if (seccion === 'Órdenes') {
+                btnDelete.style.display = "none";
+            }
+        }
 
         if (seccion === 'Empleados') {
             btnCreate.onclick = () => window.location.href = "{% url 'crear_empleado' %}";
@@ -109,12 +131,6 @@
                 alert("Para editar o eliminar, selecciona una factura en 'Ver Lista'");
                 window.location.href = "{% url 'lista_facturas' %}";
             };
-        } else {
-            btnCreate.onclick = btnRead.onclick = btnUpdate.onclick = btnDelete.onclick = function() {
-                alert("El CRUD de " + seccion + " estará disponible pronto.");
-            };
-            btnUpdate.style.opacity = "0.5";
-            btnDelete.style.opacity = "0.5";
         }
 
         modal.style.display = 'block';

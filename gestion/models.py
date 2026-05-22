@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.db import models
+from django.contrib.auth.models import User  
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
@@ -22,6 +23,7 @@ class Empleado(models.Model):
         ('Administrador', 'Administrador'),
     ]
 
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='empleado', null=True, blank=True)
     nombre = models.CharField(max_length=100)
     cargo = models.CharField(max_length=50, choices=CARGOS)
     telefono = models.CharField(max_length=20, blank=True, null=True)
@@ -42,7 +44,7 @@ class Mesa(models.Model):
     ]
 
     numero_mesa = models.PositiveIntegerField(unique=True)
-    capacidad = models.PositiveIntegerField()
+    capacidad = models.PositiveIntegerField() 
     estado_mesa = models.CharField(max_length=20, choices=ESTADOS_MESA, default='Disponible')
 
     class Meta:
@@ -69,10 +71,12 @@ class Plato(models.Model):
 class Orden(models.Model):
     ESTADOS_ORDEN = [
         ('En Proceso', 'En Proceso'), 
-        ('Activa', 'Activa'),
+        ('Pendiente', 'Pendiente'),        
+        ('Activa', 'Activa'),           
         ('En preparación', 'En preparación'),
-        ('Entregada', 'Entregada'),
-        ('Facturada', 'Facturada'),   
+        ('Entregada', 'Entregada'),       
+        ('En Caja', 'En Caja'),          
+        ('Facturada', 'Facturada'),        
         ('Cancelada', 'Cancelada'),
     ]
 
@@ -99,18 +103,33 @@ class Orden(models.Model):
     def __str__(self):
         return f"Orden {self.id} - {self.cliente.nombre} (Mesa {self.mesa.numero_mesa})"
 
+    def comanda_texto(self):
+        detalles = self.detalles.all()
+        if not detalles:
+            return "Sin platos"
+        
+        lineas = []
+        for d in detalles:
+            estado = "(Entregado)" if d.servido else "(En preparación)"
+            lineas.append(f"{d.cantidad}x {d.plato.nombre_plato} {estado}")
+        return ", ".join(lineas)
+
     @property
     def boton_eliminar(self):
-        if not self.detalles.exists():
-            return True
+        if self.estado_orden in ['En Caja', 'Facturada', 'Cancelada']:
+            return False
         return not self.detalles.filter(servido=True).exists()
 
     @property
     def boton_entregar(self):
+        if self.estado_orden != 'Activa':
+            return False
         return self.detalles.filter(servido=False).exists()
 
     @property
     def boton_facturar(self):
+        if self.estado_orden in ['En Caja', 'Facturada', 'Cancelada']:
+            return False
         if not self.detalles.exists():
             return False
         return not self.detalles.filter(servido=False).exists()
@@ -119,13 +138,13 @@ class Orden(models.Model):
 class DetalleOrden(models.Model):
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='detalles')
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField()
+    cantidad = models.PositiveIntegerField() 
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     servido = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'Detail_Order'  # Corregido para evitar problemas de caracteres especiales en SQL Server
+        db_table = 'Detail_Order'
 
     def save(self, *args, **kwargs):
         self.precio_unitario = self.plato.precio
@@ -140,6 +159,12 @@ class DetalleOrden(models.Model):
 
     def __str__(self):
         return f"Detalle {self.id} - Orden {self.orden.id}"
+    
+    @property
+    def estado_texto(self):
+        if self.servido:
+            return "(Entregado)"
+        return "(En preparación)"
 
 
 class Factura(models.Model):

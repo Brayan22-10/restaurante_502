@@ -1,9 +1,11 @@
 {% extends 'gestion/base.html' %} {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2>Gestión de Mesas</h2>
+
+    {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
     <a href="{% url 'crear_mesa' %}" class="btn-auth" style="text-decoration: none; padding: 10px 20px; width: auto; margin: 0;">
         AGREGAR MESA
-    </a>
+    </a> {% endif %}
 </div>
 
 <table>
@@ -31,10 +33,10 @@
             <td style="text-align: center;">
                 <a href="{% url 'editar_mesa' mesa.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">
                     Editar
-                </a>
-                <a href="{% url 'eliminar_mesa' mesa.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">
+                </a> {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
+                <a href="{% url 'eliminar_mesa' mesa.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;" onclick="return confirm('¿Seguro que deseas eliminar esta mesa?');">
                     Eliminar
-                </a>
+                </a> {% endif %}
             </td>
         </tr>
         {% empty %}

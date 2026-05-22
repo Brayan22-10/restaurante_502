@@ -1,0 +1,37 @@
+<h3 style="color: #7f8c8d; margin-top: 30px; margin-bottom: 10px; font-weight: bold;">
+    <span style="border-left: 4px solid #7f8c8d; padding-left: 10px;">Historial de Órdenes (Facturadas / Cerradas)</span>
+</h3>
+<table style="width: 100%; border-collapse: collapse; background: #fafafa; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 30px;">
+    <thead>
+        <tr style="border-bottom: 2px solid #7f8c8d; text-align: left; background-color: #f1f2f6;">
+            <th style="padding: 12px; color: #7f8c8d; width: 10%;">ID</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 15%;">MESA</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 20%;">MESERO</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 40%;">PLATOS DISFRUTADOS</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 15%;">ESTADO</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for orden in ordenes %} {% if orden.estado_orden == 'Facturada' or orden.estado_orden == 'Cerrada' %}
+        <tr style="border-bottom: 1px solid #e4e7eb; color: #7f8c8d;">
+            <td style="padding: 12px; vertical-align: middle;">#{{ orden.id }}</td>
+            <td style="padding: 12px; vertical-align: middle;">
+                {% if orden.mesa %}Mesa N° {{ orden.mesa.numero_mesa }}{% else %}Sin mesa{% endif %}
+            </td>
+            <td style="padding: 12px; vertical-align: middle;">
+                {% if orden.empleado %}{{ orden.empleado.nombre }}{% else %}-{% endif %}
+            </td>
+            <td style="padding: 12px; vertical-align: middle;">
+                <ul style="margin: 0; padding-left: 15px; font-size: 13px; list-style-type: circle;">
+                    {% for detalle in orden.detalles.all %}
+                    <li>{{ detalle.plato.nombre_plato }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td style="padding: 12px; vertical-align: middle; font-weight: bold; color: #27ae60;">
+                ✓ {{ orden.estado_orden }}
+            </td>
+        </tr>
+        {% endif %} {% endfor %}
+    </tbody>
+</table>

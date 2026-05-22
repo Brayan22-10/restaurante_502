@@ -35,7 +35,7 @@
     </header>
 
     <nav>
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated %} {% if user.is_superuser or user.empleado.cargo == 'Administrador' or user.groups.all.0.name == 'Administrador' or user.groups.all.0.name == 'Admin' %}
         <a href="{% url 'inicio' %}">Inicio</a>
         <a href="{% url 'lista_clientes' %}">Clientes</a>
         <a href="{% url 'lista_empleados' %}">Empleados</a>
@@ -43,34 +43,37 @@
         <a href="{% url 'lista_platos' %}">Platos</a>
         <a href="{% url 'lista_ordenes' %}">Órdenes</a>
         <a href="{% url 'lista_facturas' %}">Facturas</a>
+        <a href="{% url 'asignar_rol' %}" style="color: #f39c12; font-weight: bold;">+ Asignar Roles</a> {% elif user.empleado.cargo == 'Mesero' or user.empleado.cargo == 'Mesera' or user.groups.all.0.name == 'Mesero' %}
+        <a href="{% url 'inicio' %}">Inicio</a>
+        <a href="{% url 'lista_mesas' %}">Mesas</a>
+        <a href="{% url 'lista_platos' %}">Platos</a>
+        <a href="{% url 'lista_ordenes' %}">Órdenes</a> {% elif user.empleado.cargo == 'Cajero' or user.empleado.cargo == 'Cajera' or user.groups.all.0.name == 'Cajero' %}
+        <a href="{% url 'inicio' %}">Inicio</a>
+        <a href="{% url 'lista_ordenes' %}">Órdenes</a>
+        <a href="{% url 'lista_facturas' %}">Facturas</a> {% else %}
+        <a href="{% url 'inicio' %}">Inicio</a> {% endif %}
 
         <div class="nav-user-section" style="float: right; display: flex; align-items: center;">
             <span style="color: #c0392b; margin-right: 15px; font-size: 0.9rem;">
-                    Usuario: <strong>{{ user.username }}</strong>
+                    Usuario: <strong>{{ user.username }}</strong> 
+                    ({% if user.empleado.cargo %}{{ user.empleado.cargo }}{% else %}{{ user.groups.all.0.name }}{% endif %})
                 </span>
             <a href="{% url 'logout' %}" class="nav-logout" style="color: #c0392b; font-weight: bold;">
                     Cerrar Sesión
                 </a>
         </div>
+
         {% else %}
         <a href="{% url 'login' %}">Iniciar Sesión</a>
         <a href="{% url 'registro' %}">Registrarse</a> {% endif %}
     </nav>
 
     <div class="contenedor">
-
         {% if messages %} {% for message in messages %}
         <div class="alerta-global alerta-{{ message.tags }}">
             {{ message }}
         </div>
-        {% endfor %} {% endif %} {% if user.is_authenticated %} {% block content %} {% endblock %} {% else %}
-        <div class="acceso-restringido" style="text-align: center; padding: 50px;">
-            <h2 style="color: #2c3e50;">Acceso Restringido</h2>
-            <hr style="width: 50px; border: 2px solid #c0392b; margin: 20px auto;">
-            <p>Por favor, inicia sesión para acceder al sistema de gestión del restaurante.</p>
-            <a href="{% url 'login' %}" class="btn-auth" style="display: inline-block; margin-top: 20px; text-decoration: none;">IR AL LOGIN</a>
-        </div>
-        {% endif %}
+        {% endfor %} {% endif %} {% block content %} {% endblock %}
     </div>
 </body>
 

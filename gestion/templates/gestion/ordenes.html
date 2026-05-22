@@ -1,76 +1,120 @@
-{% extends 'gestion/base.html' %} {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2>Gestión de Órdenes</h2>
-    <a href="{% url 'crear_orden' %}" class="btn-auth" style="text-decoration: none; padding: 10px 20px; width: auto; margin: 0;">
-        NUEVA ORDEN
-    </a>
+{% extends 'gestion/base.html' %} {% block title %}Control de Órdenes - Pasta La Vista{% endblock %} {% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; margin-top: 10px;">
+    <h2 style="margin: 0; font-weight: bold; color: #851414; font-size: 1.8rem;">Panel de Órdenes Activas</h2>
+
+    {% if user.is_superuser or user.empleado.cargo != 'Cajero' and user.empleado.cargo != 'Cajera' %}
+    <a href="{% url 'crear_orden' %}" style="background-color: #851414; color: white; padding: 10px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 0.95rem; text-transform: uppercase; border: 1px solid #6b1010; transition: background 0.2s;">
+        Agregar Orden
+    </a> {% endif %}
 </div>
 
-<table>
+<table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 40px; border-radius: 6px; overflow: hidden;">
     <thead>
-        <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Mesero</th>
-            <th>Mesa</th>
-            <th>Comanda (Platos)</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Total</th>
-            <th style="text-align: center;">Acciones</th>
+        <tr style="border-bottom: 3px solid #851414; text-align: left; background-color: #f8f9fa;">
+            <th style="padding: 14px 12px; color: #851414; width: 8%;">ID</th>
+            <th style="padding: 14px 12px; color: #851414; width: 12%;">MESA</th>
+            <th style="padding: 14px 12px; color: #851414; width: 15%;">MESERO</th>
+            <th style="padding: 14px 12px; color: #851414; width: 30%;">PLATOS / COMANDA</th>
+            <th style="padding: 14px 12px; color: #851414; width: 15%;">ESTADO ACTUAL</th>
+
+            {% if user.is_superuser or user.empleado.cargo != 'Cajero' and user.empleado.cargo != 'Cajera' %}
+            <th style="padding: 14px 12px; color: #851414; width: 20%;">ACCIONES DISPONIBLES</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
-        {% for orden in ordenes %}
-        <tr>
-            <td><strong>#{{ orden.id }}</strong></td>
-            <td>{{ orden.cliente.nombre }}</td>
-            <td>{{ orden.empleado.nombre }}</td>
-            <td>Mesa {{ orden.mesa.numero_mesa }}</td>
+        {% for orden in ordenes_activas %}
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 14px 12px; vertical-align: middle;"><strong>#{{ orden.id }}</strong></td>
+            <td style="padding: 14px 12px; vertical-align: middle;">{% if orden.mesa %}Mesa N° {{ orden.mesa.numero_mesa }}{% else %}Sin mesa{% endif %}</td>
+            <td style="padding: 14px 12px; vertical-align: middle;">{% if orden.empleado %}{{ orden.empleado.nombre }}{% else %}-{% endif %}</td>
 
-            <td>
-                <ul style="margin: 0; padding-left: 15px; font-size: 0.9rem; text-align: left;">
+            <td style="padding: 14px 12px; vertical-align: middle;">
+                <ul style="margin: 0; padding-left: 15px; font-size: 14px;">
                     {% for detalle in orden.detalles.all %}
-                    <li>
-                        <strong>{{ detalle.cantidad }}x</strong> {{ detalle.plato.nombre_plato }} {% if not detalle.servido %}
-                        <span style="color: #e67e22; font-size: 0.75rem; font-style: italic;">(En preparación)</span> {% else %}
-                        <span style="color: #2ecc71; font-size: 0.75rem; font-style: italic;">(Entregado)</span> {% endif %}
+                    <li style="margin-bottom: 4px;">
+                        {{ detalle.plato.nombre_plato }} <span style="color: #27ae60; font-size: 12px;">(Cargado)</span>
                     </li>
-                    {% empty %}
-                    <li style="color: #999; list-style: none; margin-left: -15px;">Sin platos añadidos</li>
                     {% endfor %}
                 </ul>
             </td>
 
-            <td>{{ orden.fecha_hora|date:"d/m/Y H:i" }}</td>
-
-            <td>
-                {% if orden.estado_orden == 'Facturada' %}
-                <span class="badge" style="background-color: #2ecc71; color: white; padding: 3px 8px; border-radius: 3px;">Facturada</span> {% else %}
-                <span class="badge" style="background-color: #f1c40f; color: black; padding: 3px 8px; border-radius: 3px;">Activa</span> {% endif %}
+            <td style="padding: 14px 12px; vertical-align: middle;">
+                {% if orden.estado_orden == 'Pendiente' %}
+                <span style="font-weight: bold; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; background-color: #fef9e7; color: #f39c12;">
+                    {{ orden.estado_orden }}
+                </span> {% elif orden.estado_orden == 'Entregada' %}
+                <span style="font-weight: bold; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; background-color: #d4efdf; color: #27ae60;">
+                    {{ orden.estado_orden }}
+                </span> {% else %}
+                <span style="font-weight: bold; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; background-color: #ebf5fb; color: #2980b9;">
+                    {{ orden.estado_orden }}
+                </span> {% endif %}
             </td>
 
-            <td><strong style="color: #27ae60;">${{ orden.total }}</strong></td>
+            {% if user.is_superuser or user.empleado.cargo != 'Cajero' and user.empleado.cargo != 'Cajera' %}
+            <td style="padding: 14px 12px; vertical-align: middle;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
 
-            <td style="text-align: center;">
-                {% if orden.estado_orden == 'Facturada' %}
-                <span style="color: #7f8c8d; font-style: italic; font-size: 0.9rem;">Orden Cerrada</span> {% else %}
-
-                <a href="{% url 'agregar_platos_orden' orden.id %}" style="color: #3498db; text-decoration: none; font-weight: bold; margin-right: 15px;">+ Platos</a> {% if orden.boton_eliminar %}
-                <a href="{% url 'eliminar_orden' orden.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold; margin-right: 15px;">Eliminar Orden</a> {% endif %} {% if orden.boton_entregar %}
-                <a href="{% url 'entregar_orden' orden.id %}" style="color: #e67e22; text-decoration: none; font-weight: bold; margin-right: 15px;">Entregar</a> {% endif %} {% if orden.boton_facturar %}
-                <a href="{% url 'crear_factura' orden.id %}" style="color: #2ecc71; text-decoration: none; font-weight: bold;">Facturar</a> {% endif %} {% endif %}
+                    {% if orden.estado_orden == 'En Caja' %}
+                    <span style="color: #d35400; font-size: 0.85rem; font-style: italic; background: #fdf2e9; padding: 6px; border-radius: 4px; border: 1px solid #f5cba7; text-align: center; font-weight: bold;">
+                        En Caja - Procesando Pago
+                    </span> {% else %} {% if orden.puede_modificar %}
+                    <a href="{% url 'agregar_platos_orden' orden.id %}" style="color: #007bff; text-decoration: none; font-weight: bold; font-size: 13px;">+ Agregar Platos / Bebidas</a> {% endif %} {% if orden.puede_enviar_cocina %}
+                    <a href="{% url 'confirmar_orden' orden.id %}" style="color: #28a745; text-decoration: none; font-weight: bold; font-size: 13px;">Enviar a Cocina</a> {% endif %} {% if orden.puede_servir %}
+                    <a href="{% url 'entregar_orden' orden.id %}" style="color: #17a2b8; text-decoration: none; font-weight: bold; font-size: 13px;">Marcar como Servido</a> {% endif %} {% if orden.puede_facturar %}
+                    <a href="{% url 'cargar_factura' orden.id %}" style="color: #e67e22; text-decoration: none; font-weight: bold; font-size: 13px;">Cargar a Caja / Facturar</a> {% endif %} {% endif %}
+                </div>
             </td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr>
-            <td colspan="9" style="text-align: center; padding: 20px; color: #666;">No hay órdenes registradas.</td>
+            <td colspan="{% if user.empleado.cargo == 'Cajero' or user.empleado.cargo == 'Cajera' %}5{% else %}6{% endif %}" style="text-align: center; color: #6c757d; padding: 30px; font-style: italic;">
+                No hay órdenes activas en las mesas.
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<div style="margin-top: 20px;">
-    <a href="{% url 'inicio' %}" style="text-decoration: none; color: var(--texto);">Volver al Inicio</a>
+<h3 style="color: #7f8c8d; margin-top: 20px; margin-bottom: 15px; font-weight: bold; font-size: 1.3rem;">Historial de Órdenes (Facturadas / Cerradas)</h3>
+<table style="width: 100%; border-collapse: collapse; background: #fafafa; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 6px; overflow: hidden;">
+    <thead>
+        <tr style="border-bottom: 2px solid #7f8c8d; text-align: left; background-color: #f1f2f6;">
+            <th style="padding: 12px; color: #7f8c8d; width: 8%;">ID</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 12%;">MESA</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 15%;">MESERO</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 50%;">PLATOS DISFRUTADOS</th>
+            <th style="padding: 12px; color: #7f8c8d; width: 15%;">ESTADO</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for orden in ordenes_historial %}
+        <tr style="border-bottom: 1px solid #e4e7eb; color: #7f8c8d;">
+            <td style="padding: 12px; vertical-align: middle;">#{{ orden.id }}</td>
+            <td style="padding: 12px; vertical-align: middle;">{% if orden.mesa %}Mesa N° {{ orden.mesa.numero_mesa }}{% else %}Sin mesa{% endif %}</td>
+            <td style="padding: 12px; vertical-align: middle;">{% if orden.empleado %}{{ orden.empleado.nombre }}{% else %}-{% endif %}</td>
+
+            <td style="padding: 12px; vertical-align: middle;">
+                <ul style="margin: 0; padding-left: 15px; font-size: 13px; list-style-type: circle;">
+                    {% for detalle in orden.detalles.all %}
+                    <li>{{ detalle.plato.nombre_plato }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+
+            <td style="padding: 12px; vertical-align: middle; font-weight: bold; color: #27ae60;">✓ {{ orden.estado_orden }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #999; padding: 25px; font-style: italic;">No hay historial de órdenes registradas hoy.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 30px; margin-bottom: 20px;">
+    <a href="{% url 'inicio' %}" style="text-decoration: none; color: #851414; font-weight: bold;">Volver al Inicio</a>
 </div>
 {% endblock %}

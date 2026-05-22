@@ -1,0 +1,55 @@
+{% extends 'gestion/base.html' %} {% block content %}
+<div style="max-width: 550px; margin: 40px auto; padding: 20px; font-family: Arial, sans-serif;">
+    <div style="background: #ffffff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 30px;">
+
+        <h2 style="color: #800000; text-align: center; margin-top: 0; margin-bottom: 5px; font-size: 1.6rem; font-weight: bold;">
+            Asignar o Cambiar Rol
+        </h2>
+        <p style="color: #666; text-align: center; margin-bottom: 25px; font-size: 0.9rem; line-height: 1.4;">
+            Selecciona un empleado para otorgarle credenciales o modificar su rol actual en el sistema.
+        </p>
+        <hr style="border: 0; border-top: 1px solid #800000; opacity: 0.2; margin-bottom: 25px;">
+
+        <form method="POST" novalidate>
+            {% csrf_token %} {% if form.non_field_errors %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9rem;">
+                {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold; color: #333; margin-bottom: 8px; font-size: 0.95rem;">
+                    Seleccionar Empleado:
+                </label>
+                <div style="width: 100%;">
+                    {{ form.empleado }}
+                </div>
+                {% if form.empleado.errors %}
+                <div style="color: #c0392b; font-size: 0.85rem; margin-top: 5px;">{{ form.empleado.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; font-weight: bold; color: #333; margin-bottom: 8px; font-size: 0.95rem;">
+                    Rol del Sistema:
+                </label>
+                <div style="width: 100%;">
+                    {{ form.rol }}
+                </div>
+                {% if form.rol.errors %}
+                <div style="color: #c0392b; font-size: 0.85rem; margin-top: 5px;">{{ form.rol.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" style="background-color: #800000; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; font-size: 0.95rem; cursor: pointer; width: 100%; transition: background 0.2s;">
+                    GENERAR / ACTUALIZAR CREDENCIALES
+                </button>
+                <a href="{% url 'inicio' %}" style="display: block; text-align: center; background-color: #7f8c8d; color: white; text-decoration: none; padding: 12px; border-radius: 5px; font-weight: bold; font-size: 0.95rem; transition: background 0.2s;">
+                    CANCELAR
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

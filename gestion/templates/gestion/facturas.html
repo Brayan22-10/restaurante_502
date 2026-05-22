@@ -1,49 +1,85 @@
 {% extends 'gestion/base.html' %} {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2>Gestión de Facturas</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; margin-top: 10px;">
+    <h2 style="margin: 0; font-weight: bold; color: #851414; font-size: 1.8rem;">Gestión de Facturas</h2>
 </div>
 
-<table>
+<table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden;">
     <thead>
-        <tr>
-            <th>ID</th>
-            <th>Orden Relacionada</th>
-            <th>Fecha de Emisión</th>
-            <th>Subtotal</th>
-            <th>Impuesto (8%)</th>
-            <th>Total Pagado</th>
-            <th>Método de Pago</th>
-            <th style="text-align: center;">Acciones</th>
+        <tr style="border-bottom: 3px solid #851414; text-align: left; background-color: #f8f9fa;">
+            <th style="padding: 14px 12px; color: #851414;">ID</th>
+            <th style="padding: 14px 12px; color: #851414;">Orden Relacionada</th>
+            <th style="padding: 14px 12px; color: #851414;">Fecha de Emisión</th>
+            <th style="padding: 14px 12px; color: #851414;">Subtotal</th>
+            <th style="padding: 14px 12px; color: #851414;">Impuesto (8%)</th>
+            <th style="padding: 14px 12px; color: #851414;">Total Factura</th>
+            <th style="padding: 14px 12px; color: #851414;">Método de Pago</th>
+            <th style="padding: 14px 12px; color: #851414;">Estado</th>
+            {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
+            <th style="padding: 14px 12px; color: #851414; text-align: center;">Acciones</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
         {% for factura in facturas %}
-        <tr>
-            <td><strong>#{{ factura.id }}</strong></td>
-            <td>Orden #{{ factura.orden.id }}</td>
-            <td>{{ factura.fecha_factura|date:"d/m/Y" }}</td>
-            <td>${{ factura.subtotal }}</td>
-            <td>${{ factura.impuesto }}</td>
-            <td style="font-weight: bold; color: var(--principal);">${{ factura.total_factura }}</td>
-            <td>
-                <span style="background: #f4f6f7; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; border: 1px solid #ddd;">
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 14px 12px; vertical-align: middle;"><strong>#{{ factura.id }}</strong></td>
+            <td style="padding: 14px 12px; vertical-align: middle;">Orden #{{ factura.orden.id }}</td>
+            <td style="padding: 14px 12px; vertical-align: middle;">{{ factura.fecha_factura|date:"d/m/Y" }}</td>
+            <td style="padding: 14px 12px; vertical-align: middle;">${{ factura.subtotal }}</td>
+            <td style="padding: 14px 12px; vertical-align: middle;">${{ factura.impuesto }}</td>
+            <td style="padding: 14px 12px; vertical-align: middle; font-weight: bold; color: #851414;">${{ factura.total_factura }}</td>
+            <td style="padding: 14px 12px; vertical-align: middle;">
+                <span style="background: #f4f6f7; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; border: 1px solid #ddd; font-weight: 500;">
                     {{ factura.metodo_pago }}
                 </span>
             </td>
-            <td style="text-align: center;">
-                <a href="{% url 'editar_factura' factura.id %}" style="color: #f39c12; text-decoration: none; font-weight: bold; margin-right: 15px;">Editar</a>
-                <a href="{% url 'eliminar_factura' factura.id %}" style="color: #c0392b; text-decoration: none; font-weight: bold;">Eliminar</a>
+            <td style="padding: 14px 12px; vertical-align: middle;">
+                {% if factura.orden.estado_orden == 'Facturada' or factura.orden.estado_orden == 'Cerrada' %}
+                <span class="badge" style="background-color: #2ecc71; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">Pagada</span> {% else %}
+                <span class="badge" style="background-color: #e74c3c; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">Pendiente</span> {% endif %}
             </td>
+
+            {% if user.groups.all.0.name != 'Mesero' and user.empleado.cargo != 'Mesero' and user.empleado.cargo != 'Mesera' %}
+            <td style="padding: 14px 12px; vertical-align: middle; text-align: center;">
+                {% if factura.orden.estado_orden != 'Facturada' and factura.orden.estado_orden != 'Cerrada' %}
+                <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+
+                    <form action="{% url 'finalizar_pago_factura' factura.id %}" method="post" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: #2ecc71; color: white; border: none; padding: 6px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-transform: uppercase;" onclick="return confirm('¿Confirmar el pago y cierre definitivo de esta factura?');">
+                            Cobrar Cuenta
+                        </button>
+                    </form>
+
+                    <a href="{% url 'editar_factura' factura.id %}" style="background: #f1c40f; color: #2c3e50; padding: 6px 14px; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 0.85rem; text-transform: uppercase;">
+                        Editar
+                    </a>
+
+                    <form action="{% url 'eliminar_factura' factura.id %}" method="post" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: #c0392b; font-weight: bold; font-size: 0.9rem; cursor: pointer; padding: 4px 8px;" onclick="return confirm('¿Estás seguro de eliminar esta factura? La orden se reabrirá.');">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                    <span style="color: #27ae60; font-weight: bold; font-size: 0.9rem;">✓ Caja Cerrada</span>
+                    <span style="color: #95a5a6; font-style: italic; font-size: 0.9rem;">(No modificable)</span>
+                </div>
+                {% endif %}
+            </td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr>
-            <td colspan="8" style="text-align: center; padding: 20px; color: #666;">No hay facturas registradas en el sistema.</td>
+            <td colspan="9" style="text-align: center; padding: 30px; color: #666; font-style: italic;">No hay facturas registradas en el sistema.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<div style="margin-top: 20px;">
-    <a href="{% url 'inicio' %}" style="text-decoration: none; color: var(--texto);">Volver al Inicio</a>
+<div style="margin-top: 25px; margin-bottom: 20px;">
+    <a href="{% url 'inicio' %}" style="text-decoration: none; color: #851414; font-weight: bold;">Volver al Inicio</a>
 </div>
 {% endblock %}

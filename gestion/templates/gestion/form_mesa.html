@@ -3,12 +3,14 @@
     <div class="auth-container" style="max-width: 500px; border-left: 6px solid #800000;">
         <h2>{{ titulo }}</h2>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-        <form method="post" style="text-align: left;">
+
+        <form id="formMesa" method="post" style="text-align: left;">
             {% csrf_token %} {% for field in form %}
             <div style="margin-bottom: 15px;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">{{ field.label }}:</label> {{ field }}
             </div>
             {% endfor %}
+
             <div style="margin-top: 30px; display: flex; gap: 10px;">
                 <button type="submit" class="btn-auth" style="margin: 0; flex: 2;">GUARDAR</button>
                 <a href="{% url 'lista_mesas' %}" class="btn-auth" style="background: #ccc; text-decoration: none; text-align: center; margin: 0; flex: 1; display: flex; align-items: center; justify-content: center;">CANCELAR</a>
@@ -16,4 +18,36 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const userGroup = "{{ user.groups.all.0.name }}";
+        const userCargo = "{% if user.empleado.cargo %}{{ user.empleado.cargo }}{% endif %}";
+        const form = document.getElementById('formMesa');
+
+        if (userGroup === 'Mesero' || userCargo === 'Mesero' || userCargo === 'Mesera') {
+            const numeroMesaInput = form.querySelector('input[name="numero_mesa"]') || form.querySelector('input[name="numero"]');
+            const capacidadInput = form.querySelector('input[name="capacidad"]') || form.querySelector('select[name="capacidad"]');
+
+            if (numeroMesaInput) {
+                numeroMesaInput.readOnly = true;
+                numeroMesaInput.style.background = "#e9ecef";
+                numeroMesaInput.style.color = "#495057";
+                numeroMesaInput.style.cursor = "not-allowed";
+            }
+
+            if (capacidadInput) {
+                if (capacidadInput.tagName === 'SELECT') {
+                    capacidadInput.style.pointerEvents = "none";
+                    capacidadInput.setAttribute("tabindex", "-1");
+                } else {
+                    capacidadInput.readOnly = true;
+                }
+                capacidadInput.style.background = "#e9ecef";
+                capacidadInput.style.color = "#495057";
+                capacidadInput.style.cursor = "not-allowed";
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'gestion/base.html' %} {% block content %}
+<div style="max-width: 500px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <h2 style="margin-bottom: 20px; color: #333; text-align: center;">Crear Nuevo Usuario y Asignar Rol</h2>
+
+    <form method="post" novalidate style="display: flex; flex-direction: column; gap: 15px;">
+        {% csrf_token %} {% for field in form %}
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label style="font-weight: bold; color: #555;">{{ field.label }}</label> {{ field }} {% if field.errors %}
+            <span style="color: #c0392b; font-size: 0.85rem;">{{ field.errors.0 }}</span> {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn-auth" style="margin-top: 10px; width: 100%; padding: 12px; font-weight: bold;">
+            REGISTRAR Y ASIGNAR
+        </button>
+    </form>
+
+    <div style="margin-top: 15px; text-align: center;">
+        <a href="{% url 'inicio' %}" style="text-decoration: none; color: #7f8c8d;">Cancelar y Volver</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'gestion/base.html' %} {% block content %}
+<div style="max-width: 550px; margin: 40px auto; padding: 20px; font-family: Arial, sans-serif;">
+    <div style="background: #ffffff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 30px; text-align: center;">
+
+        <div style="color: #27ae60; font-size: 3.5rem; margin-bottom: 10px; line-height: 1;">
+            ✓
+        </div>
+
+        <h2 style="color: #27ae60; margin-top: 0; margin-bottom: 5px; font-size: 1.6rem; font-weight: bold;">
+            ¡Operación Exitosa!
+        </h2>
+        <p style="color: #333; margin-bottom: 25px; font-size: 1rem; line-height: 1.4;">
+            El empleado <strong style="color: #800000; text-transform: uppercase;">{{ empleado.nombre }}</strong> ha sido configurado correctamente.
+        </p>
+
+        <hr style="border: 0; border-top: 1px solid #800000; opacity: 0.2; margin-bottom: 25px;">
+
+        <div style="background-color: #f9f9f9; border: 1px dashed #800000; border-radius: 6px; padding: 20px; text-align: left; margin-bottom: 30px;">
+            <h3 style="color: #800000; margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                Datos de Ingreso para {{ rol }}
+            </h3>
+
+            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 0.95rem;">
+                <span style="color: #666; font-weight: bold;">USUARIO DE LOGIN:</span>
+                <code style="background: #edf2f7; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #2d3748;">{{ username }}</code>
+            </div>
+
+            <div style="margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 0.95rem;">
+                <span style="color: #666; font-weight: bold;">CONTRASEÑA ASIGNADA:</span>
+                <code style="background: #edf2f7; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #2d3748;">{{ password }}</code>
+            </div>
+        </div>
+
+        <p style="color: #7f8c8d; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.4;">
+            * Recuerda que este usuario es compartido para todos los empleados con el rol de <strong>{{ rol }}</strong>.
+        </p>
+
+        <a href="{% url 'inicio' %}" style="display: block; text-align: center; background-color: #800000; color: white; text-decoration: none; padding: 12px; border-radius: 5px; font-weight: bold; font-size: 0.95rem; transition: background 0.2s;">
+            VOLVER AL INICIO
+        </a>
+    </div>
+</div>
+{% endblock %}
